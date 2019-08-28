@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Sarah Shahid, Waleed Chayeb">
+    <title>تجربة في الاقتصاد السلوكي - برمجية مفتوحة المصدر - جامعة حلب، سوريا</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Tajawal:400,500,700,800,900&display=swap&subset=arabic"
+        rel="stylesheet">
+    <link href="dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="dist/css/cover.css" rel="stylesheet">
+</head>
+
+<body class="text-center">
+    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+        <header class="masthead mb-auto">
+            <div class="inner">
+                <h3 class="masthead-brand">تجربة في الاقتصاد السلوكي</h3>
+                <nav class="nav nav-masthead justify-content-center">
+                    <a class="nav-link active" href="index.html">الرئيسية</a>
+                    <a class="nav-link" href="about.html">الورقة البحثية</a>
+                    <a class="nav-link" href="privacy.html"> الترخيص</a>
+                </nav>
+            </div>
+        </header>
+
+        <main role="main" class="inner cover">
+            <div id="pagecontent" class="pt-5">
+                <h1 class="cover-heading">ادخل اسمك لبدء التجربة</h1>
+                <br>
+                <input id="usernametxt" class="form-control" style="width:50%; margin-left:auto; margin-right:auto;"
+                    type="text" placeholder="يمكنك استخدام اسمك الحقيقي أو اسم مستعار.." />
+                <small id="usernameerror" style="color:red;"></small>
+                <br>
+
+                <p class="lead">
+                    <button id="startbtn" type="button" class="btn btn-lg btn-secondary">انطلق</button>
+                </p>
+            </div>
+        </main>
+
+        <footer class="mastfoot mt-auto" style="direction: ltr !important;">
+            <div class="inner">
+                <p>Copyright © 2019. BE, by <a href="http://sarahshahid.net" target="_blank"><b>Sarah
+                            Shahid</b></a>. <br><small>Website Developed by <a href="https://wchayeb.com"
+                            target="_blank"><b>Waleed Chayeb</b></a></small>.</p>
+            </div>
+        </footer>
+    </div>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="dist/js/bootstrap.min.js"></script>
+    <script>
+
+        //user variables
+        var username = "";
+        var Exp_I = 2;
+        var Q_I = 1;
+        var useravailable = true; // Has signed a contract or not
+
+
+        //timeline variables
+        var currenttime = 0;
+        var currenttimebar = 1.6;
+        var totalSteps = 100;
+        var currentStep = 1;
+        var currentStepType = "N";
+
+        //new contracts variables
+        var newcontractExp_C = 1;
+        var newcontractQ_C = 1;
+        var newcontractSalary = 1;
+        var newcontractNOH = 1; // Number of Hours
+        var newcontractAdditional = 1;
+
+        //signed contracts variables
+        var currentcontractExp_C = 1;
+        var currentcontractQ_C = 1;
+        var currentcontractSalary = 1000;
+        var currentcontractNOH = 1; // Number of Hours
+        var currentcontractAdditional = 1;
+
+
+
+        //start button
+        $("#startbtn").click(function () {
+            username = $("#usernametxt").val();
+            if (!username.trim()) {
+                $("#usernameerror").html("هذا الحقل مطلوب لبدء التجربة <br>");
+            } else {
+                start(username);
+            }
+        });
+        $("#usernametxt").keypress(function (e) {
+            if (e.which == 13) {
+                $("#startbtn").click();
+            }
+        });
+
+        $(document).ready(function () {
+
+        });
+
+
+        //start function
+        function start($param) {
+            $("#pagecontent").html('<h5 class="cover-heading" style="text-align:right !important;">أهلاً بك، ' + $param + '!</h5><br><br>  <h5  > الفترة <span id="currentStep">1</span> / ' + totalSteps + '</h5><br><div class="row"><div id="col1" class="col-md-6">Col1</div><div id="col2" class="col-md-6">Col2</div></div><br><br><div class="row"><div id="userStatus" class="col-md-4"></div><div class="col-md-8"></div></div>');
+            $("#col1").html("لايوجد لديك عقد عمل حالي.");
+            $("#col2").html('<table class="table table-hover p-3" style="width:80%; margin-left:auto; margin-right:auto;" > <head> <h2>العقد رقم #<span id="currentContract">1</span> </h2> <br> </head> <tbody> <tr> <td>الخبرة المطلوبة</td> <td><b id="newcontractExp">3</b></td> </tr> <tr> <td>المؤهلات المطلوبة</td> <td><b id="newcontractQ">3</b></td> </tr> <tr> <td>الراتب</td> <td><b id="newcontractSalary">1000</b></td> </tr> <tr> <td>عدد ساعات العمل</td> <td><b id="newcontractNOH">8</b></td> </tr> <tr> <td>مزايا إضافية</td> <td><b id="newcontractAdditional">3</b></td> </tr> </tbody> </table> <button id="signbtn" type="button" class="btn btn-lg btn-secondary" onclick="clearTimeout(window.globaltimer); signcontract();" >وقع العقد!</button><button class="btn btn-link btn-xs" onclick="clearTimeout(window.globaltimer); stepforward();">الانتقال إلى الفترة التالية</button> <br> <br> <br><div class="progress" style="height: 2px; width:80%; margin-left:auto; margin-right:auto;"> <div id="timerprogressbar" class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="60"></div></div><span id="timer"></span> <br>');
+            $("#userStatus").html('<p>خبرتك الحالية: <span  id="userEx">2<span></p><p>مؤهلاتك الحالية: <span  id="userQ">2<span></p><br>');
+            $("#userEx").text(Exp_I);
+            $("#userQ").text(Q_I);
+            generatecontract();
+            runtimer();
+        }
+
+        //oneminutetimer
+        function runtimer() {
+            currenttime += 1;
+            currenttimebar += 1.6;
+            $("#timer").text('الزمن المتبقي لانتهاء هذه الفترة: ' + currenttime + ' /60 ثانية');
+            $('#timerprogressbar').css('width', currenttimebar + '%').attr('aria-valuenow', currenttimebar);
+            if (currenttime <= 60) {
+                window.globaltimer = setTimeout(function () { runtimer() }, 1000);
+            } else {
+                stepforward();
+            }
+        }
+
+
+
+        //stepfunction
+        function stepforward() {
+            currentStep++;
+
+
+
+            if (currentStep > 10 && currentStep <= 15)
+                currentStepType = "OC";
+            else if (currentStep > 15 && currentStep <= 17)
+                currentStepType = "N";
+            else if (currentStep > 17 && currentStep <= 21)
+                currentStepType = "RF";
+            else if (currentStep > 21 && currentStep <= 25)
+                currentStepType = "OC";
+            else if (currentStep > 25 && currentStep <= 29)
+                currentStepType = "RF";
+            else if (currentStep > 30 && currentStep <= 35)
+                currentStepType = "RF";
+            else if (currentStep > 36 && currentStep <= 38)
+                currentStepType = "N";
+            else if (currentStep > 38 && currentStep <= 42)
+                currentStepType = "OC";
+            else if (currentStep > 42 && currentStep <= 47)
+                currentStepType = "RF";
+            else if (currentStep > 47 && currentStep <= 51)
+                currentStepType = "OC";
+            else if (currentStep > 51 && currentStep <= 55)
+                currentStepType = "OC";
+            else if (currentStep > 55 && currentStep <= 59)
+                currentStepType = "RF";
+            else if (currentStep > 59 && currentStep <= 65)
+                currentStepType = "N";
+            else if (currentStep > 65 && currentStep <= 69)
+                currentStepType = "RF";
+            else if (currentStep > 69 && currentStep <= 73)
+                currentStepType = "OC";
+            else if (currentStep > 73 && currentStep <= 78)
+                currentStepType = "OC";
+            else if (currentStep > 78 && currentStep <= 83)
+                currentStepType = "RF";
+            else if (currentStep > 83 && currentStep <= 89)
+                currentStepType = "RF";
+            else if (currentStep > 89 && currentStep <= 94)
+                currentStepType = "OC";
+            else if (currentStep > 94 && currentStep <= 100)
+                currentStepType = "N";
+
+
+            if (currentStep <= 100) {
+                currenttime = 0;
+                currenttimebar = 1.6;
+                $("#currentStep").text(currentStep);
+                $("#currentContract").text(currentStep);
+                generatecontract();
+                runtimer();
+            } else {
+                alert("لقد انتهت هذه التجربة بنجاح! شكراً لوقتك");
+            }
+        }
+
+        //signcontract
+        function generatecontract() {
+
+            newcontractExp_C = Exp_I * Math.round((((Math.floor(Math.random() * 7)) + 3) / 5));
+            newcontractQ_C = Q_I * Math.round((((Math.floor(Math.random() * 7)) + 3) / 5));
+
+
+            switch (currentStepType) {
+                case 'N':
+                    newcontractSalary = currentcontractSalary * ((newcontractExp_C * newcontractQ_C) / (newcontractExp_C * Q_I));
+                    break;
+                case 'OC ':
+                    newcontractSalary = Math.floor(Math.random() * currentcontractSalary) + (1.75 * currentcontractSalary);
+                    break;
+                case 'RF':
+                    newcontractSalary = Math.floor(Math.random() * currentcontractSalary) + (0.75 * currentcontractSalary);
+                    break;
+            } 
+
+            newcontractNOH = Math.floor(Math.random() * 40) + 10;
+
+
+            $("#newcontractExp").text(newcontractExp_C);
+            $("#newcontractQ").text(newcontractQ_C);
+            $("#newcontractSalary").text(newcontractSalary + " $");
+            $("#newcontractNOH").text(newcontractNOH + " ساعة");
+            $("#newcontractAdditional").text(newcontractAdditional);
+        }
+
+        //signcontract
+        function signcontract() {
+            useravailable = true;
+            $("#signbtn").prop('disabled', true);
+            $("#signbtn").prop('title', "عليك فسخ عقدك الحالي قبل توقيع أي عقود جديدة.");
+             currentcontractExp_C = newcontractExp_C;
+             currentcontractQ_C = newcontractQ_C;
+             currentcontractSalary = newcontractSalary;
+             currentcontractNOH = newcontractNOH; // Number of Hours
+             currentcontractAdditional = newcontractAdditional;
+
+            //calculate User new attribures
+            calculateQ_I();
+
+            $("#col1").html('<table class="table table-hover p-3" style="width:80%; margin-left:auto; margin-right:auto;" > <head> <h2>عقد عملك الحالي</h2> <br> </head> <tbody> <tr> <td>الخبرة المطلوبة</td> <td><b id="currentcontractExp">' + currentcontractExp_C + '</b></td> </tr> <tr> <td>المؤهلات المطلوبة</td> <td><b id="currentcontractQ">' + currentcontractQ_C + '</b></td> </tr> <tr> <td>الراتب</td> <td><b id="currentcontractSalary">' + currentcontractSalary + '</b></td> </tr> <tr> <td>عدد ساعات العمل</td> <td><b id="currentcontractNOH">' + currentcontractNOH + '</b></td> </tr> <tr> <td>مزايا إضافية</td> <td><b id="currentcontractAdditional">' + currentcontractAdditional + '</b></td> </tr> </tbody> </table> <button id="canclebtn" type="button" class="btn btn-lg btn-danger" onclick="clearTimeout(window.globaltimer); canclecontract();" >فسخ العقد!</button><br> <br> <br>');
+
+            stepforward();
+        }
+
+        //canclecontract
+        function canclecontract() {
+            $("#signbtn").prop('disabled', false);
+            $("#signbtn").prop('title', "توقيع هذا العقد!");
+             useravailable = false;
+             currentcontractExp_C = 0;
+             currentcontractQ_C = 0;
+             currentcontractSalary = 0;
+             currentcontractNOH = 0; // Number of Hours
+             currentcontractAdditional = 0;
+            $("#col1").html("لايوجد لديك عقد عمل حالي.");
+            stepforward();
+        }
+
+        //increase user Q
+        function calculateQ_I() { 
+            for (i = 1; i < currentcontractExp_C; i++) { 
+                if (Q_I < 5) {
+                    Q_I++;
+                } else {
+                    Exp_I++;
+                    Q_I = 1;
+                }
+            }
+
+            $("#userEx").text(Exp_I);
+            $("#userQ").text(Q_I);
+
+        }
+
+    </script>
+
+</body>
+
+</html>
