@@ -21,6 +21,7 @@
                 <h3 class="masthead-brand">تجربة في الاقتصاد السلوكي</h3>
                 <nav class="nav nav-masthead justify-content-center">
                     <a class="nav-link active" href="index.html">الرئيسية</a>
+                    <a class="nav-link " href="introduction.html">تعليمات التجربة</a>
                     <a class="nav-link" href="about.html">الورقة البحثية</a>
                     <a class="nav-link" href="privacy.html"> الترخيص</a>
                 </nav>
@@ -29,11 +30,23 @@
 
         <main role="main" class="inner cover">
             <div id="pagecontent" class="pt-5">
-                <h1 class="cover-heading">ادخل اسمك لبدء التجربة</h1>
+                <h1 class="cover-heading">أدخل اسمك لبدء التجربة</h1>
                 <br>
                 <input id="usernametxt" class="form-control" style="width:50%; margin-left:auto; margin-right:auto;"
-                    type="text" placeholder="يمكنك استخدام اسمك الحقيقي أو اسم مستعار.." />
+                    type="text" placeholder="يرجى استخدام الاسم كما في الاستبيان القبلي.." />
+                <input id="DOB" class="form-control" type="date" style="width:50%; margin-left:auto; margin-right:auto; margin-top: 10px;;"/>
+                <div class="btn-group btn-group-toggle" data-toggle="buttons" style="width:50%; margin-left:auto; margin-right:auto;margin-top: 10px;">
+                    <label class="btn btn-secondary active">
+                        <input type="radio" name="gender" value="Male"  checked> Male
+                    </label>
+                    <label class="btn btn-secondary">
+                        <input type="radio" name="gender" value="Female" > Female
+                    </label>
+                </div>
+                <br/>
                 <small id="usernameerror" style="color:red;"></small>
+                <br/>
+                <small id="DOBerror" style="color:red;"></small>
                 <br>
 
                 <p class="lead">
@@ -58,9 +71,21 @@
 
         //user variables
         var username = "";
+        var gender = "Male";
+        var DOB = new Date();
+        //The total income for all the saleries the user gets
+        var totalIncome = 0;
+        var contractsSigned = 0;
+        var contractsCanceled = 0;
+        var contractsSignedAfterCancel = 0;
+        var cancelContractStep = -1;
+        var countSkipInOC = 0;
+        var countSkipInRP = 0;
+
+
         var Exp_I = 2;
         var Q_I = 1;
-        var useravailable = true; // Has signed a contract or not
+        var useravailable = false; // Has signed a contract or not
 
 
         //timeline variables
@@ -83,14 +108,22 @@
         var currentcontractSalary = 1000;
         var currentcontractNOH = 1; // Number of Hours
         var currentcontractAdditional = 1;
+        var currentcontractvalidation = 0;
 
 
+        //the name of the hosting server
+        var servername = "https://murmuring-anchorage-73786.herokuapp.com";
 
         //start button
         $("#startbtn").click(function () {
             username = $("#usernametxt").val();
-            if (!username.trim()) {
-                $("#usernameerror").html("هذا الحقل مطلوب لبدء التجربة <br>");
+            DOB = $("#DOB").val()
+            gender = $('input[name="gender"]:checked').val();
+            if (!username.trim() ) {
+                $("#usernameerror").html("الاسم مطلوب لبدء التجربة <br>");
+            }else if( DOB === "") 
+            {
+                $("#DOBerror").html("تاريخ الميلاد غير صالح <br>");
             } else {
                 start(username);
             }
@@ -108,10 +141,10 @@
 
         //start function
         function start($param) {
-            $("#pagecontent").html('<h5 class="cover-heading" style="text-align:right !important;">أهلاً بك، ' + $param + '!</h5><br><br>  <h5  > الفترة <span id="currentStep">1</span> / ' + totalSteps + '</h5><br><div class="row"><div id="col1" class="col-md-6">Col1</div><div id="col2" class="col-md-6">Col2</div></div><br><br><div class="row"><div id="userStatus" class="col-md-4"></div><div class="col-md-8"></div></div>');
-            $("#col1").html("لايوجد لديك عقد عمل حالي.");
-            $("#col2").html('<table class="table table-hover p-3" style="width:80%; margin-left:auto; margin-right:auto;" > <head> <h2>العقد رقم #<span id="currentContract">1</span> </h2> <br> </head> <tbody> <tr> <td>الخبرة المطلوبة</td> <td><b id="newcontractExp">3</b></td> </tr> <tr> <td>المؤهلات المطلوبة</td> <td><b id="newcontractQ">3</b></td> </tr> <tr> <td>الراتب</td> <td><b id="newcontractSalary">1000</b></td> </tr> <tr> <td>عدد ساعات العمل</td> <td><b id="newcontractNOH">8</b></td> </tr> <tr> <td>مزايا إضافية</td> <td><b id="newcontractAdditional">3</b></td> </tr> </tbody> </table> <button id="signbtn" type="button" class="btn btn-lg btn-secondary" onclick="clearTimeout(window.globaltimer); signcontract();" >وقع العقد!</button><button class="btn btn-link btn-xs" onclick="clearTimeout(window.globaltimer); stepforward();">الانتقال إلى الفترة التالية</button> <br> <br> <br><div class="progress" style="height: 2px; width:80%; margin-left:auto; margin-right:auto;"> <div id="timerprogressbar" class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="60"></div></div><span id="timer"></span> <br>');
-            $("#userStatus").html('<p>خبرتك الحالية: <span  id="userEx">2<span></p><p>مؤهلاتك الحالية: <span  id="userQ">2<span></p><br>');
+            $("#pagecontent").html('<h5 class="cover-heading" style="text-align:right !important;">أهلاً بك، ' + $param + '!</h5><br><br>  <h5  > الفترة <span id="currentStep">1</span> / ' + totalSteps + '</h5><br><div class="row"><div class="col-md-6"><div id="col1"></div><div id="userStatus" class="col-md-4" style=" max-width: unset;"></div></div><div id="col2" class="col-md-6">Col2</div></div><br><br>');
+            $("#col1").html("<p style='margin-bottom:50px; margin-top:70px;'>لا يوجد لديك عمل حالياً...</p>");
+            $("#col2").html('<table class="table table-hover p-3" style="width:80%; margin-left:auto; margin-right:auto;" > <head> <h2>العقد رقم #<span id="currentContract">1</span> </h2> <br> </head> <tbody> <tr> <td>الخبرة المطلوبة</td> <td><b id="newcontractExp">3</b></td> </tr> <tr> <td>المؤهلات المطلوبة</td> <td><b id="newcontractQ">3</b></td> </tr> <tr> <td>الراتب</td> <td><b id="newcontractSalary">1000</b></td> </tr> <tr> <td>عدد ساعات العمل</td> <td><b id="newcontractNOH">8</b></td> </tr> <tr> <td>مزايا إضافية</td> <td><b id="newcontractAdditional">3</b></td> </tr> </tbody> </table> <button id="signbtn" type="button" class="btn btn-lg btn-secondary" onclick="clearTimeout(window.globaltimer); signcontract();" >وقع العقد!</button><button class="btn btn-link btn-xs" id="stepForwardButton" onclick="clearTimeout(window.globaltimer); stepforward();">الانتقال إلى الفترة التالية</button> <br> <br> <br><div class="progress" style="height: 2px; width:80%; margin-left:auto; margin-right:auto;"> <div id="timerprogressbar" class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="60"></div></div><span id="timer"></span> <br>');
+            $("#userStatus").html('<div class="row"> <div class="col-md-6"><b>خبرتك الحالية:</b> <span id="userEx">2</span></div> <div class="col-md-6"><b>مؤهلاتك الحالية:</b> <span id="userQ">3</span></div> </div>');
             $("#userEx").text(Exp_I);
             $("#userQ").text(Q_I);
             generatecontract();
@@ -136,8 +169,6 @@
         //stepfunction
         function stepforward() {
             currentStep++;
-
-
 
             if (currentStep > 10 && currentStep <= 15)
                 currentStepType = "OC";
@@ -180,7 +211,7 @@
             else if (currentStep > 94 && currentStep <= 100)
                 currentStepType = "N";
 
-
+         
             if (currentStep <= 100) {
                 currenttime = 0;
                 currenttimebar = 1.6;
@@ -188,42 +219,79 @@
                 $("#currentContract").text(currentStep);
                 generatecontract();
                 runtimer();
+          
+                if(currentStepType === "OC"){
+                    countSkipInOC++;
+                }else if(currentStepType === "RF"){
+                    countSkipInRP++;
+                }
+
+                //if the user has already signed a contract
+                if(useravailable && currentcontractvalidation < 5){
+                    //add the salery to the total income
+                    totalIncome = totalIncome + currentcontractSalary
+                }
+
+                if(currentcontractvalidation > 1)
+                {
+                    currentcontractvalidation--;
+                    $('#timerprogressbarforcontract').css('width', currentcontractvalidation*25 + '%').attr('aria-valuenow', currentcontractvalidation*25);
+                }else  if(currentcontractvalidation == 1)
+                { 
+                    //Add to it so we do not count this contract as cancel by user
+                    currentcontractvalidation--;
+                    canclecontract();
+                }
+
+
             } else {
-                alert("لقد انتهت هذه التجربة بنجاح! شكراً لوقتك");
+                saveData("excel");
             }
         }
 
         //signcontract
         function generatecontract() {
 
-            newcontractExp_C = Exp_I * Math.round((((Math.floor(Math.random() * 7)) + 3) / 5));
-            newcontractQ_C = Q_I * Math.round((((Math.floor(Math.random() * 7)) + 3) / 5));
-
+            newcontractExp_C = Math.round(Exp_I * ((Math.random() * (7 - 3) + 3) / 5)); 
+            newcontractQ_C = Math.round(Q_I * ((Math.random() * (7 - 3) + 3) / 5));   
+ 
 
             switch (currentStepType) {
                 case 'N':
-                    newcontractSalary = currentcontractSalary * ((newcontractExp_C * newcontractQ_C) / (newcontractExp_C * Q_I));
+                    newcontractSalary = Math.round((currentcontractSalary * ((newcontractExp_C * newcontractQ_C) / (newcontractExp_C * Q_I))) /50)*50;
                     break;
                 case 'OC ':
-                    newcontractSalary = Math.floor(Math.random() * currentcontractSalary) + (1.75 * currentcontractSalary);
+                    newcontractSalary = Math.round((Math.floor(Math.random() * currentcontractSalary) + (1.75 * currentcontractSalary))/50)*50;
                     break;
                 case 'RF':
-                    newcontractSalary = Math.floor(Math.random() * currentcontractSalary) + (0.75 * currentcontractSalary);
+                    newcontractSalary = Math.round((Math.floor(Math.random() * currentcontractSalary) + (0.75 * currentcontractSalary))/50)*50;
                     break;
             } 
 
-            newcontractNOH = Math.floor(Math.random() * 40) + 10;
-
+            newcontractNOH = Math.floor(Math.random() * 40) + 10; 
+            newcontractAdditional = Math.round((Math.floor(Math.random() * (5 - 1 + 1) + 1)) * (newcontractNOH/40) * 10);
 
             $("#newcontractExp").text(newcontractExp_C);
             $("#newcontractQ").text(newcontractQ_C);
-            $("#newcontractSalary").text(newcontractSalary + " $");
+            $("#newcontractSalary").text(newcontractSalary);
             $("#newcontractNOH").text(newcontractNOH + " ساعة");
             $("#newcontractAdditional").text(newcontractAdditional);
         }
 
         //signcontract
         function signcontract() {
+            //update counters
+            contractsSigned++;
+            if((currentStep - 1) === cancelContractStep){
+                contractsSignedAfterCancel++;
+            }
+
+            if(currentStepType === "OC"){
+                    countSkipInOC--;
+                }else if(currentStepType === "RF"){
+                    countSkipInRP--;
+            }
+
             useravailable = true;
             $("#signbtn").prop('disabled', true);
             $("#signbtn").prop('title', "عليك فسخ عقدك الحالي قبل توقيع أي عقود جديدة.");
@@ -232,43 +300,91 @@
              currentcontractSalary = newcontractSalary;
              currentcontractNOH = newcontractNOH; // Number of Hours
              currentcontractAdditional = newcontractAdditional;
-
+             currentcontractvalidation = 5;
             //calculate User new attribures
             calculateQ_I();
 
-            $("#col1").html('<table class="table table-hover p-3" style="width:80%; margin-left:auto; margin-right:auto;" > <head> <h2>عقد عملك الحالي</h2> <br> </head> <tbody> <tr> <td>الخبرة المطلوبة</td> <td><b id="currentcontractExp">' + currentcontractExp_C + '</b></td> </tr> <tr> <td>المؤهلات المطلوبة</td> <td><b id="currentcontractQ">' + currentcontractQ_C + '</b></td> </tr> <tr> <td>الراتب</td> <td><b id="currentcontractSalary">' + currentcontractSalary + '</b></td> </tr> <tr> <td>عدد ساعات العمل</td> <td><b id="currentcontractNOH">' + currentcontractNOH + '</b></td> </tr> <tr> <td>مزايا إضافية</td> <td><b id="currentcontractAdditional">' + currentcontractAdditional + '</b></td> </tr> </tbody> </table> <button id="canclebtn" type="button" class="btn btn-lg btn-danger" onclick="clearTimeout(window.globaltimer); canclecontract();" >فسخ العقد!</button><br> <br> <br>');
+            $("#col1").html('<table class="table table-hover p-3" style="width:80%; margin-left:auto; margin-right:auto;" > <head> <h2>عقد عملك الحالي</h2> <br> </head> <tbody> <tr> <td>الخبرة المطلوبة</td> <td><b id="currentcontractExp">' + currentcontractExp_C + '</b></td> </tr> <tr> <td>المؤهلات المطلوبة</td> <td><b id="currentcontractQ">' + currentcontractQ_C + '</b></td> </tr> <tr> <td>الراتب</td> <td><b id="currentcontractSalary">' + currentcontractSalary + '</b></td> </tr> <tr> <td>عدد ساعات العمل</td> <td><b id="currentcontractNOH">' + currentcontractNOH + '</b></td> </tr> <tr> <td>مزايا إضافية</td> <td><b id="currentcontractAdditional">' + currentcontractAdditional + '</b></td> </tr> </tbody> </table> <button id="canclebtn" type="button" class="btn btn-lg btn-danger" onclick="clearTimeout(window.globaltimer); canclecontract();" >فسخ العقد!</button><br> <br> <br><div class="progress" style="height: 2px; width:80%; margin-left:auto; margin-right:auto;"> <div id="timerprogressbarforcontract" class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="4" aria-valuemin="1" aria-valuemax="4"></div></div><span>الزمن المتبقي لإنتهاء فترة العقد</span><br />');
 
             stepforward();
         }
 
         //canclecontract
         function canclecontract() {
+            //If the contract is cancel by the user not buy the end of time
+            if(currentcontractvalidation >0){
+                //update counters
+                contractsCanceled++;
+            }
+            //Save the step the contract was cancel in
+            cancelContractStep = currentStep
+
+            currentcontractvalidation = 0;
             $("#signbtn").prop('disabled', false);
             $("#signbtn").prop('title', "توقيع هذا العقد!");
              useravailable = false;
              currentcontractExp_C = 0;
-             currentcontractQ_C = 0;
-             currentcontractSalary = 0;
+             currentcontractQ_C = 0; 
              currentcontractNOH = 0; // Number of Hours
              currentcontractAdditional = 0;
-            $("#col1").html("لايوجد لديك عقد عمل حالي.");
+            $("#col1").html("<p style='margin-bottom:50px; margin-top:70px;'>لا يوجد لديك عمل حالياً...</p>");
             stepforward();
         }
 
         //increase user Q
         function calculateQ_I() { 
-            for (i = 1; i < currentcontractExp_C; i++) { 
+ 
+            var counter = 0;
+            if(currentcontractExp_C == Exp_I){
+            counter = currentcontractQ_C - Q_I;
+            }
+            else
+            {
+                counter = ((currentcontractExp_C - Exp_I) *5) + (currentcontractQ_C - Q_I);
+            }
+ 
+            Q_Increaser(counter);
+ 
+            $("#userEx").text(Exp_I);
+            $("#userQ").text(Q_I);
+
+        }
+
+        function Q_Increaser(counter)
+        {
+            for (i = 0; i < counter; i++) { 
                 if (Q_I < 5) {
                     Q_I++;
                 } else {
                     Exp_I++;
                     Q_I = 1;
                 }
-            }
-
-            $("#userEx").text(Exp_I);
-            $("#userQ").text(Q_I);
-
+            } 
+        }
+        
+        //
+        // Sends the data back to the excel api 
+        //
+        function saveData(type){
+            $("#signbtn").prop('disabled', true);
+            $("#stepForwardButton").prop('disabled',true);
+                  
+            $.ajax({
+                type : "POST",
+                url : `${servername}/api/${type}`,
+                data : {"data" : [username,gender,DOB,totalIncome,contractsSigned,contractsCanceled,contractsSignedAfterCancel,countSkipInOC,countSkipInRP]},
+                success : function(result){
+                    alert("لقد انتهت هذه التجربة بنجاح! شكراً لوقتك");
+                    if(useravailable){
+                        canclecontract()
+                    }
+                },
+                error : function(error){
+                    $("#stepForwardButton").prop('disabled',false);
+                    alert("Data was not saved!")
+                    console.log(error)
+                }
+            })
         }
 
     </script>
