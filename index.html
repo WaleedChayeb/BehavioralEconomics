@@ -84,7 +84,7 @@
 
 
         var Exp_I = 2;
-        var Q_I = 1;
+        var Q_I = 2;
         var useravailable = false; // Has signed a contract or not
 
 
@@ -252,9 +252,13 @@
         //signcontract
         function generatecontract() {
 
-            newcontractExp_C = Math.round(Exp_I * ((Math.random() * (7 - 3) + 3) / 5)); 
-            newcontractQ_C = Math.round(Q_I * ((Math.random() * (7 - 3) + 3) / 5));   
- 
+            newcontractExp_C = Math.ceil(Math.random() * (Exp_I + 1)); 
+            newcontractQ_C = Math.ceil(Math.random() * (Q_I + 1));   
+            
+            if(newcontractExp_C > 5)
+                newcontractExp_C = 5
+            if(newcontractQ_C > 5)
+                newcontractQ_C = 5
 
             switch (currentStepType) {
                 case 'N':
