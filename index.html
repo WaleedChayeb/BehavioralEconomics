@@ -83,8 +83,12 @@
         var countSkipInRP = 0;
 
 
-        var Exp_I = 2;
-        var Q_I = 2;
+        //Test variables until confirmed
+        var temp = 20;
+
+
+        var Exp_I = 20;
+        var Q_I = 20;
         var useravailable = false; // Has signed a contract or not
 
 
@@ -251,29 +255,29 @@
 
         //signcontract
         function generatecontract() {
-
-            newcontractExp_C = Math.ceil(Math.random() * (Exp_I + 1)); 
-            newcontractQ_C = Math.ceil(Math.random() * (Q_I + 1));   
+            //EXP_C
+            newcontractExp_C =getRandomBetween(-10,10,true) + Exp_I; 
+            //Q_C
+            newcontractQ_C = getRandomBetween(-10,10,true) + Q_I;   
             
-            if(newcontractExp_C > 5)
-                newcontractExp_C = 5
-            if(newcontractQ_C > 5)
-                newcontractQ_C = 5
 
             switch (currentStepType) {
                 case 'N':
-                    newcontractSalary = Math.round((currentcontractSalary * ((newcontractExp_C * newcontractQ_C) / (newcontractExp_C * Q_I))) /50)*50;
+                    newcontractSalary = Math.ceil(currentcontractSalary * (((0.4 * newcontractExp_C) * (0.6 *newcontractQ_C)) /((0.4 * currentcontractExp_C) * (0.6 *currentcontractQ_C)))); 
                     break;
                 case 'OC ':
-                    newcontractSalary = Math.round((Math.floor(Math.random() * currentcontractSalary) + (1.75 * currentcontractSalary))/50)*50;
+                    newcontractSalary = Math.ceil(currentcontractSalary * (((0.4 * newcontractExp_C) * (0.6 *newcontractQ_C)) /((0.4 * currentcontractExp_C) * (0.6 *currentcontractQ_C))) * getRandomBetween(1,1.5,false)); 
                     break;
                 case 'RF':
-                    newcontractSalary = Math.round((Math.floor(Math.random() * currentcontractSalary) + (0.75 * currentcontractSalary))/50)*50;
+                    newcontractSalary = Math.ceil(currentcontractSalary * (((0.4 * newcontractExp_C) * (0.6 *newcontractQ_C)) /((0.4 * currentcontractExp_C) * (0.6 *currentcontractQ_C))) * getRandomBetween(1,1.5,false)); 
                     break;
             } 
+            if(newcontractSalary < 0 ){
+                newcontractSalary = newcontractSalary * -1;
+            }
 
-            newcontractNOH = Math.floor(Math.random() * 40) + 10; 
-            newcontractAdditional = Math.round((Math.floor(Math.random() * (5 - 1 + 1) + 1)) * (newcontractNOH/40) * 10);
+            newcontractNOH = getRandomBetween(10,40,true); 
+            newcontractAdditional = Math.ceil(getRandomBetween(1,5,true) * (40/newcontractNOH) * 10);
 
             $("#newcontractExp").text(newcontractExp_C);
             $("#newcontractQ").text(newcontractQ_C);
@@ -299,12 +303,13 @@
             useravailable = true;
             $("#signbtn").prop('disabled', true);
             $("#signbtn").prop('title', "عليك فسخ عقدك الحالي قبل توقيع أي عقود جديدة.");
-             currentcontractExp_C = newcontractExp_C;
-             currentcontractQ_C = newcontractQ_C;
-             currentcontractSalary = newcontractSalary;
-             currentcontractNOH = newcontractNOH; // Number of Hours
-             currentcontractAdditional = newcontractAdditional;
-             currentcontractvalidation = 5;
+            currentcontractExp_C = newcontractExp_C;
+            currentcontractQ_C = newcontractQ_C;
+            currentcontractSalary = newcontractSalary;
+            currentcontractNOH = newcontractNOH; // Number of Hours
+            currentcontractAdditional = newcontractAdditional;
+            currentcontractvalidation = 5;
+             
             //calculate User new attribures
             calculateQ_I();
 
@@ -327,8 +332,8 @@
             $("#signbtn").prop('disabled', false);
             $("#signbtn").prop('title', "توقيع هذا العقد!");
              useravailable = false;
-             currentcontractExp_C = 0;
-             currentcontractQ_C = 0; 
+             currentcontractExp_C = 20;
+             currentcontractQ_C = 20; 
              currentcontractNOH = 0; // Number of Hours
              currentcontractAdditional = 0;
             $("#col1").html("<p style='margin-bottom:50px; margin-top:70px;'>لا يوجد لديك عمل حالياً...</p>");
@@ -337,17 +342,28 @@
 
         //increase user Q
         function calculateQ_I() { 
- 
-            var counter = 0;
-            if(currentcontractExp_C == Exp_I){
-            counter = currentcontractQ_C - Q_I;
+            
+            Q_I= Math.ceil( Q_I + (currentcontractAdditional/50) + 2*(currentcontractExp_C/Exp_I));
+
+            var lambda = 0;
+            if(Q_I >temp){
+                temp = temp+20;
+                lambda = 1;
             }
-            else
-            {
-                counter = ((currentcontractExp_C - Exp_I) *5) + (currentcontractQ_C - Q_I);
-            }
+
+            Exp_I = Math.ceil(((newcontractNOH/40)*1.5) +10*lambda);
+
+            
+            // var counter = 0;
+            // if(currentcontractExp_C == Exp_I){
+            // counter = currentcontractQ_C - Q_I;
+            // }
+            // else
+            // {
+            //     counter = ((currentcontractExp_C - Exp_I) *5) + (currentcontractQ_C - Q_I);
+            // }
  
-            Q_Increaser(counter);
+            // Q_Increaser(counter);
  
             $("#userEx").text(Exp_I);
             $("#userQ").text(Q_I);
@@ -391,6 +407,21 @@
             })
         }
 
+        //
+        // Gets a random number between tow numbers
+        //
+        function getRandomBetween(start,end,ceiled){
+        var number = Math.random() * (end - start) + start;
+        if(ceiled){
+            var ceiledNumber = Math.ceil(number);
+            if(ceiledNumber === 0){
+                return getRandomBetween(start,end,ceiled);
+            }
+            return ceiledNumber;
+        }
+        else
+            return number;
+        }
     </script>
 
 </body>
