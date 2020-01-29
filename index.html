@@ -118,7 +118,7 @@
         //the name of the hosting server
         var servername = "https://savemydata.sariahouloubi.com"//"https://calm-meadow-22429.herokuapp.com";
         //The security token for adding values to the database
-        var jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyOTIxNmNkYi00YTViLTQ1ZjItODI4MC1hN2NkM2U5MTM3NmIiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJob3Vsb3ViaXNAZ21haWwuY29tIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6IlNhbWkiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3ByaW1hcnlzaWQiOiIzMjZhNWFlNy0wMGQxLTRiOTEtOWQyMS0yOTlkYjA3NmNkYWIiLCJleHAiOjE1ODQxODg3MDEsImlzcyI6InNhdmVteWRhdGEuc2FyaWFob3Vsb3ViaS5jb20iLCJhdWQiOiJzYXZlbXlkYXRhLnNhcmlhaG91bG91YmkuY29tIn0.foJGYHfdsSIOfPUCTQ3s96-l_5NgPKx0cu0SfMGnkBs";
+        var jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNmZkMDEwNC1hZjUzLTQ5YmItOTU3Yy04MjVkZDdiOTBlODMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJzYXJhaC5zaGFoaWQ2QGdtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJTYXJhaCBTaGFoaWQiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3ByaW1hcnlzaWQiOiI4MDBiMGI4ZS05MjVkLTQ5MDctOTc3MC0zNmIyZjU3MGI2MWQiLCJleHAiOjE1ODU0MjU2NjcsImlzcyI6InNhdmVteWRhdGEuc2FyaWFob3Vsb3ViaS5jb20iLCJhdWQiOiJzYXZlbXlkYXRhLnNhcmlhaG91bG91YmkuY29tIn0.bZg51gOrJUyi5hgszx7rgeFSqZGkOO76RTh7qr0PQnA";
         //start button
         $("#startbtn").click(function () {
             username = $("#usernametxt").val();
@@ -223,7 +223,7 @@
                 currentStepType = "N";
 
          
-            if (currentStep <= 1) {
+            if (currentStep <= 100) {
                 currenttime = 0;
                 currenttimebar = 1.6;
                 $("#currentStep").text(currentStep);
@@ -396,36 +396,40 @@
                 }
             } 
         }
-        
+        //A falg to make sure the data is only sent one time
+        var dataSaved = false
         //
         // Sends the data back to the excel api 
         //
         function saveData(){
+            
             $("#signbtn").prop('disabled', true);
             $("#stepForwardButton").prop('disabled',true);
-                  
-            $.ajax({
-                url : `${servername}/api/Collectionapi/Record`,
-                headers: { "Authorization": 'Bearer ' + jwtToken, "Content-Type" : 'application/json' },
-                type : "POST",
-                data : JSON.stringify({
-                            database:"BE"
-                            ,Table:"SurveyResults"
-                            ,data : {username,gender,DOB,totalIncome,contractsSigned,contractsCanceled,contractsSignedAfterCancel,countSkipInOC,countSkipInRP}
-                        }),
-                success : function(result){
-                    alert("لقد انتهت هذه التجربة بنجاح! شكراً لوقتك");
-                    alert(result)
-                    if(useravailable){
-                        canclecontract()
+            if(!dataSaved){      
+                $.ajax({
+                    url : `${servername}/api/recordapi/create`,
+                    headers: { "Authorization": 'Bearer ' + jwtToken, "Content-Type" : 'application/json' },
+                    type : "POST",
+                    data : JSON.stringify({
+                                Database :"BE"
+                                ,Table:"SurveyResults"
+                                ,data : {username,gender,DOB,totalIncome,contractsSigned,contractsCanceled,contractsSignedAfterCancel,countSkipInOC,countSkipInRP}
+                            }),
+                    success : function(result){
+                        alert("لقد انتهت هذه التجربة بنجاح! شكراً لوقتك");
+                        //mark the data as saved to make sure it will not be sent again in the same session
+                        dataSaved = true;
+                        if(useravailable){
+                            canclecontract()
+                        }
+                    },
+                    error : function(error){
+                        $("#stepForwardButton").prop('disabled',false);
+                        alert("Data was not saved!")
+                        console.log(error)
                     }
-                },
-                error : function(error){
-                    $("#stepForwardButton").prop('disabled',false);
-                    alert("Data was not saved!")
-                    console.log(error)
-                }
-            })
+                })
+            }
         }
 
         //
