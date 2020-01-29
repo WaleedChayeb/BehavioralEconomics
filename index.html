@@ -151,7 +151,7 @@
             $("#col2").html('<table class="table table-hover p-3" style="width:80%; margin-left:auto; margin-right:auto;" > <head> <h2>العقد رقم #<span id="currentContract">1</span> </h2> <br> </head> <tbody> <tr> <td>الخبرة المطلوبة</td> <td>'+
             '<div class="progress"><div class="progress-bar" role="progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="newcontractExp"></td> </tr> <tr> <td>المؤهلات المطلوبة</td> <td>'+
             '<div class="progress"><div class="progress-bar" role="progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="newcontractQ"></td> </tr> <tr> <td>الراتب</td> <td><b id="newcontractSalary">1000</b></td> </tr> <tr> <td>عدد ساعات العمل</td> <td><b id="newcontractNOH">8</b></td> </tr> <tr> <td>مزايا إضافية</td> <td><b id="newcontractAdditional">3</b></td> </tr> </tbody> </table> <button id="signbtn" type="button" class="btn btn-lg btn-secondary" onclick="clearTimeout(window.globaltimer); signcontract();" >وقع العقد!</button><button class="btn btn-link btn-xs" id="stepForwardButton" onclick="clearTimeout(window.globaltimer); stepforward();">الانتقال إلى الفترة التالية</button> <br> <br> <br><div class="progress" style="height: 2px; width:80%; margin-left:auto; margin-right:auto;"> <div id="timerprogressbar" class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="60"></div></div><span id="timer"></span> <br>');
-            $("#userStatus").html('<div class="row"> <div class="col-md-6"><b>خبرتك الحالية:</b> <div class="progress"> <div id="userEx" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">  </div></div></div> <div class="col-md-6"><b>مؤهلاتك الحالية:</b><div class="progress"><div class="progress-bar" id="userQ" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"> </div></div></div> </div>');
+            $("#userStatus").html('<div class="row"> <div class="col-md-6"><b>خبرتك الحالية:</b> <div class="progress"> <div id="userEx" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">  </div></div></div> <div class="col-md-6"><b>مؤهلاتك الحالية:</b><div class="progress"><div class="progress-bar" id="userQ" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"> </div></div></div> <div class="row">  </div><div class="col-md-6"><b>الراتب الكلي :</b> <input type="text" id= "userTotalSalary" class="m-2 border-0 text-center text-info" /> </div> </div>');
             updateProgressBar("userEx",Exp_I);
             updateProgressBar("userQ",Q_I);
 
@@ -241,6 +241,7 @@
                 if(useravailable && currentcontractvalidation < 5){
                     //add the salery to the total income
                     totalIncome = totalIncome + currentcontractSalary
+                    $('#userTotalSalary').val(totalIncome);
                 }
 
                 if(currentcontractvalidation > 1)
