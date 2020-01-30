@@ -7,7 +7,6 @@
     <meta name="description" content="">
     <meta name="author" content="Sarah Shahid, Waleed Chayeb">
     <title>تجربة في الاقتصاد السلوكي - برمجية مفتوحة المصدر - جامعة حلب، سوريا</title>
-
     <link href="https://fonts.googleapis.com/css?family=Tajawal:400,500,700,800,900&display=swap&subset=arabic"
         rel="stylesheet">
     <link href="dist/css/bootstrap.min.css" rel="stylesheet">
@@ -67,6 +66,7 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="dist/js/bootstrap.min.js"></script>
+    <script src="/dist/js/databaseService.js" ></script>
     <script>
 
         //user variables
@@ -85,8 +85,6 @@
 
         //Test variables until confirmed
         var temp = 20;
-
-
         var Exp_I = 20;
         var Q_I = 20;
         var useravailable = false; // Has signed a contract or not
@@ -114,11 +112,6 @@
         var currentcontractAdditional = 1;
         var currentcontractvalidation = 0;
 
-
-        //the name of the hosting server
-        var servername = "https://savemydata.sariahouloubi.com"//"https://calm-meadow-22429.herokuapp.com";
-        //The security token for adding values to the database
-        var jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNmZkMDEwNC1hZjUzLTQ5YmItOTU3Yy04MjVkZDdiOTBlODMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJzYXJhaC5zaGFoaWQ2QGdtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJTYXJhaCBTaGFoaWQiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3ByaW1hcnlzaWQiOiI4MDBiMGI4ZS05MjVkLTQ5MDctOTc3MC0zNmIyZjU3MGI2MWQiLCJleHAiOjE1ODU0MjU2NjcsImlzcyI6InNhdmVteWRhdGEuc2FyaWFob3Vsb3ViaS5jb20iLCJhdWQiOiJzYXZlbXlkYXRhLnNhcmlhaG91bG91YmkuY29tIn0.bZg51gOrJUyi5hgszx7rgeFSqZGkOO76RTh7qr0PQnA";
         //start button
         $("#startbtn").click(function () {
             username = $("#usernametxt").val();
@@ -154,11 +147,13 @@
             $("#userStatus").html('<div class="row"> <div class="col-md-6"><b>خبرتك الحالية:</b> <div class="progress"> <div id="userEx" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">  </div></div></div> <div class="col-md-6"><b>مؤهلاتك الحالية:</b><div class="progress"><div class="progress-bar" id="userQ" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"> </div></div></div> <div class="row">  </div><div class="col-md-6"><b>الراتب الكلي :</b> <input type="text" id= "userTotalSalary" class="m-2 border-0 text-center text-info" /> </div> </div>');
             updateProgressBar("userEx",Exp_I);
             updateProgressBar("userQ",Q_I);
-
             generatecontract();
             runtimer();
+
+            saveUserCredentials();
         }
 
+     
         //oneminutetimer
         function runtimer() {
             currenttime += 1;
@@ -179,7 +174,6 @@
         }
         //stepfunction
         function stepforward() {
-            currentStep++;
 
             if (currentStep > 10 && currentStep <= 15)
                 currentStepType = "OC";
@@ -247,18 +241,19 @@
                 if(currentcontractvalidation > 1)
                 {
                     currentcontractvalidation--;
-                    $('#timerprogressbarforcontract').css('width', currentcontractvalidation*25 + '%').attr('aria-valuenow', currentcontractvalidation*25);
+                    $('#timerprogressbarforcontract').css('width',125 - (currentcontractvalidation * 25)  + '%').attr('aria-valuenow', currentcontractvalidation*25);
                 }else  if(currentcontractvalidation == 1)
                 { 
                     //Add to it so we do not count this contract as cancel by user
                     currentcontractvalidation--;
                     canclecontract();
                 }
-
+                saveStepData();
 
             } else {
-                saveData();
+                saveResultData();
             }
+            currentStep++;
         }
 
         //signcontract
@@ -397,42 +392,8 @@
                 }
             } 
         }
-        //A falg to make sure the data is only sent one time
-        var dataSaved = false
-        //
-        // Sends the data back to the excel api 
-        //
-        function saveData(){
-            
-            $("#signbtn").prop('disabled', true);
-            $("#stepForwardButton").prop('disabled',true);
-            if(!dataSaved){      
-                $.ajax({
-                    url : `${servername}/api/recordapi/create`,
-                    headers: { "Authorization": 'Bearer ' + jwtToken, "Content-Type" : 'application/json' },
-                    type : "POST",
-                    data : JSON.stringify({
-                                Database :"BE"
-                                ,Table:"SurveyResults"
-                                ,data : {username,gender,DOB,totalIncome,contractsSigned,contractsCanceled,contractsSignedAfterCancel,countSkipInOC,countSkipInRP}
-                            }),
-                    success : function(result){
-                        alert("لقد انتهت هذه التجربة بنجاح! شكراً لوقتك");
-                        //mark the data as saved to make sure it will not be sent again in the same session
-                        dataSaved = true;
-                        if(useravailable){
-                            canclecontract()
-                        }
-                    },
-                    error : function(error){
-                        $("#stepForwardButton").prop('disabled',false);
-                        alert("Data was not saved!")
-                        console.log(error)
-                    }
-                })
-            }
-        }
 
+        
         //
         // Gets a random number between tow numbers
         //
