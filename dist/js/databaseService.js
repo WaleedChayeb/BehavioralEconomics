@@ -1,15 +1,17 @@
 //the name of the hosting server
-var servername = "https://localhost:5001";// "https://savemydata.sariahouloubi.com"//"https://calm-meadow-22429.herokuapp.com";
+var servername = "https://savemydata.sariahouloubi.com";
 //The security token for adding values to the database
-var jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0ZDljN2Y0NC0xYzU2LTQ4OWUtYWQ5Zi1hNDMzZjQ5MTVkYjkiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJteWNvb2xNYWlsQGV4YW1wbGUuY29tIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6IkZvbyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcHJpbWFyeXNpZCI6IjJlODdiNDMxLTE3MTctNGYxMi04ODJlLTc1ZmFkYjg4NGY5ZSIsImV4cCI6MTU4NTQ2NDgwOSwiaXNzIjoic2F2ZW15ZGF0YS5zYXJpYWhvdWxvdWJpLmNvbSIsImF1ZCI6InNhdmVteWRhdGEuc2FyaWFob3Vsb3ViaS5jb20ifQ.eazsSQ5qx07n8SiPxhNuKDSicmEY1p8z7fa11qZVPiQ";//"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNmZkMDEwNC1hZjUzLTQ5YmItOTU3Yy04MjVkZDdiOTBlODMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJzYXJhaC5zaGFoaWQ2QGdtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJTYXJhaCBTaGFoaWQiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3ByaW1hcnlzaWQiOiI4MDBiMGI4ZS05MjVkLTQ5MDctOTc3MC0zNmIyZjU3MGI2MWQiLCJleHAiOjE1ODU0MjU2NjcsImlzcyI6InNhdmVteWRhdGEuc2FyaWFob3Vsb3ViaS5jb20iLCJhdWQiOiJzYXZlbXlkYXRhLnNhcmlhaG91bG91YmkuY29tIn0.bZg51gOrJUyi5hgszx7rgeFSqZGkOO76RTh7qr0PQnA";
+var jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNmZkMDEwNC1hZjUzLTQ5YmItOTU3Yy04MjVkZDdiOTBlODMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJzYXJhaC5zaGFoaWQ2QGdtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJTYXJhaCBTaGFoaWQiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3ByaW1hcnlzaWQiOiI4MDBiMGI4ZS05MjVkLTQ5MDctOTc3MC0zNmIyZjU3MGI2MWQiLCJleHAiOjE1ODU0MjU2NjcsImlzcyI6InNhdmVteWRhdGEuc2FyaWFob3Vsb3ViaS5jb20iLCJhdWQiOiJzYXZlbXlkYXRhLnNhcmlhaG91bG91YmkuY29tIn0.bZg51gOrJUyi5hgszx7rgeFSqZGkOO76RTh7qr0PQnA";
 //The name of the databse to save the data in
-var databaseName = "BE";
+var databaseName = "BE-Test3";
 //The table that holds the registerd  users data
 var userTableName = "Users";
 //The table that holds each step of the user in the survey
 var surveyDetails = "SurveyDetails";
 //The table that holds the final results
-var surveyResults = "SurveyResults";
+var surveyGeneralResults = "SurveyGenralResults";
+//The table that holds the details that happend in each step type
+var surveyStepTypeDetaildResult = "SurveyStepTypeDetaildResult";
 //The id of the user that will be filled once the first registerd
 var savedUserId = "";
 
@@ -53,13 +55,13 @@ function saveStepData(){
                 Current_Step : currentStep,
                 Current_Step_Type : currentStepType,
                 User_Available : useravailable,
-                Contract_life_Period : ( 5 - currentcontractvalidation ) + 1,
+                Contract_life_Period : ( 5 - currentcontractvalidation ),
                 Contract_Details : {
                     Experience : currentcontractExp_C,
                     Qualification : currentcontractQ_C,
                     Salary : currentcontractSalary,
                     Number_of_hours : currentcontractNOH,
-                    Additionals : currentcontractAdditional
+                    Additionals : currentcontractAF
                 },
                 User_Details:{
                     Experience : Exp_I,
@@ -78,7 +80,7 @@ function saveStepData(){
 //A falg to make sure the data is only sent one time
 var dataSaved = false
 //
-// Sends the data back to the excel api 
+// Saves the general result data  
 //
 function saveResultData(){
     
@@ -90,15 +92,68 @@ function saveResultData(){
             headers: { "Authorization": 'Bearer ' + jwtToken, "Content-Type" : 'application/json' },
             type : "POST",
             data : JSON.stringify({
-                        Database :"BE"
-                        ,Table: surveyResults
+                        Database :databaseName
+                        ,Table: surveyGeneralResults
                         ,data : {user_Id: savedUserId,
-                             totalIncome,
-                             contractsSigned,
-                             contractsCanceled,
-                             contractsSignedAfterCancel,
-                             countSkipInOC,
-                             countSkipInRP}
+                            Total_Income: totalIncome,
+                            Contract_Signed :{
+                                OC :{
+                                    Steps: contractsSigned[stepType.OC].join(' , '),
+                                    Count: contractsSigned[stepType.OC].length
+                                },
+                                RP : {
+                                    Steps: contractsSigned[stepType.RP].join(' , '),
+                                    Count: contractsSigned[stepType.RP].length
+                                },
+                                N :{
+                                    Steps: contractsSigned[stepType.N].join(' , '),
+                                    Count: contractsSigned[stepType.N].length
+                                },
+                                Count : GetStepTypesArrayLength(contractsSigned)
+                            },
+                            Contract_Canceled:{
+                                OC :{
+                                    Steps: contractsCanceled[stepType.OC].join(' , '),
+                                    Count: contractsCanceled[stepType.OC].length
+                                },
+                                RP : {
+                                    Steps: contractsCanceled[stepType.RP].join(' , '),
+                                    Count: contractsCanceled[stepType.RP].length
+                                },
+                                N :{
+                                    Steps: contractsCanceled[stepType.N].join(' , '),
+                                    Count: contractsCanceled[stepType.N].length
+                                },
+                                Count : GetStepTypesArrayLength(contractsCanceled)
+                            },
+                            Contract_Sing_After_Cancel :{
+                                OC :{
+                                    Steps: contractsSignedAfterCancel[stepType.OC].join(' , '),
+                                    Count: contractsSignedAfterCancel[stepType.OC].length
+                                },
+                                RP : {
+                                    Steps: contractsSignedAfterCancel[stepType.RP].join(' , '),
+                                    Count: contractsSignedAfterCancel[stepType.RP].length
+                                },
+                                N :{
+                                    Steps: contractsSignedAfterCancel[stepType.N].join(' , '),
+                                    Count: contractsSignedAfterCancel[stepType.N].length
+                                },
+                                Count : GetStepTypesArrayLength(contractsSignedAfterCancel)
+                            },
+                            Contract_Skip :{
+                                OC :{
+                                    Count: contcontractSkip[stepType.OC]
+                                },
+                                RP : {
+                                    Count: contcontractSkip[stepType.RP]
+                                },
+                                N :{
+                                    Count: contcontractSkip[stepType.N]
+                                },
+                                Count :  GetStepTypesCount(contcontractSkip) 
+                                }
+                            }
                     }),
             success : function(result){
                 alert("لقد انتهت هذه التجربة بنجاح! شكراً لوقتك");
@@ -106,8 +161,7 @@ function saveResultData(){
                 dataSaved = true;
                 if(useravailable){
                     canclecontract()
-                }
-            },
+                }  },
             error : function(error){
                 $("#stepForwardButton").prop('disabled',false);
                 alert("Data was not saved!")
