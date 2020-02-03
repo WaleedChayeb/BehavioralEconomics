@@ -73,21 +73,40 @@
         var username = "";
         var gender = "Male";
         var DOB = new Date();
-        //The total income for all the saleries the user gets
+        //Data to be saved
         var totalIncome = 0;
-        var contractsSigned = 0;
-        var contractsCanceled = 0;
-        var contractsSignedAfterCancel = 0;
+        var contractsSigned = new Object();
+        var contractsCanceled = new Object();
+        var contractsSignedAfterCancel = new Object();
+        var contcontractSkip = new Object();
         var cancelContractStep = -1;
-        var countSkipInOC = 0;
-        var countSkipInRP = 0;
+        var stepType = {
+            OC : 'OC',
+            RP : 'RP',
+            N : 'N'
+        }
+        
+        contractsSigned[stepType.OC] = [];
+        contractsSigned[stepType.RP] = [];
+        contractsSigned[stepType.N] = [];
 
+        contractsCanceled[stepType.OC] = [];
+        contractsCanceled[stepType.RP] = [];
+        contractsCanceled[stepType.N] = [];
 
+        contcontractSkip[stepType.OC] = 34;
+        contcontractSkip[stepType.RP] = 38;
+        contcontractSkip[stepType.N] = 28;
+
+        contractsSignedAfterCancel[stepType.OC] = [];
+        contractsSignedAfterCancel[stepType.RP] = [];
+        contractsSignedAfterCancel[stepType.N] = [];
+        
         //Test variables until confirmed
-        var temp = 20;
+        var temp = 40;
         var Exp_I = 20;
         var Q_I = 20;
-        var useravailable = false; // Has signed a contract or not
+        var useravailable = true; // Has signed a contract or not
 
 
         //timeline variables
@@ -95,22 +114,24 @@
         var currenttimebar = 1.6;
         var totalSteps = 100;
         var currentStep = 1;
-        var currentStepType = "N";
+        var currentStepType = stepType.N;
 
         //new contracts variables
         var newcontractExp_C = 1;
         var newcontractQ_C = 1;
         var newcontractSalary = 1;
         var newcontractNOH = 1; // Number of Hours
-        var newcontractAdditional = 1;
+        var newcontractAF = 1;
 
         //signed contracts variables
         var currentcontractExp_C = 1;
         var currentcontractQ_C = 1;
         var currentcontractSalary = 1000;
         var currentcontractNOH = 1; // Number of Hours
-        var currentcontractAdditional = 1;
+        var currentcontractAF = 1;
         var currentcontractvalidation = 0;
+        var currentcontractStepType = stepType.N;
+        var currentcontractStep = 0;
 
         //start button
         $("#startbtn").click(function () {
@@ -142,8 +163,8 @@
             $("#pagecontent").html('<h5 class="cover-heading" style="text-align:right !important;">أهلاً بك، ' + $param + '!</h5><br><br>  <h5  > الفترة <span id="currentStep">1</span> / ' + totalSteps + '</h5><br><div class="row"><div class="col-md-6"><div id="col1"></div><div id="userStatus" class="col-md-4" style=" max-width: unset;"></div></div><div id="col2" class="col-md-6">Col2</div></div><br><br>');
             $("#col1").html("<p style='margin-bottom:50px; margin-top:70px;'>لا يوجد لديك عمل حالياً...</p>");
             $("#col2").html('<table class="table table-hover p-3" style="width:80%; margin-left:auto; margin-right:auto;" > <head> <h2>العقد رقم #<span id="currentContract">1</span> </h2> <br> </head> <tbody> <tr> <td>الخبرة المطلوبة</td> <td>'+
-            '<div class="progress"><div class="progress-bar" role="progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="newcontractExp"></td> </tr> <tr> <td>المؤهلات المطلوبة</td> <td>'+
-            '<div class="progress"><div class="progress-bar" role="progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="newcontractQ"></td> </tr> <tr> <td>الراتب</td> <td><b id="newcontractSalary">1000</b></td> </tr> <tr> <td>عدد ساعات العمل</td> <td><b id="newcontractNOH">8</b></td> </tr> <tr> <td>مزايا إضافية</td> <td><b id="newcontractAdditional">3</b></td> </tr> </tbody> </table> <button id="signbtn" type="button" class="btn btn-lg btn-secondary" onclick="clearTimeout(window.globaltimer); signcontract();" >وقع العقد!</button><button class="btn btn-link btn-xs" id="stepForwardButton" onclick="clearTimeout(window.globaltimer); stepforward();">الانتقال إلى الفترة التالية</button> <br> <br> <br><div class="progress" style="height: 2px; width:80%; margin-left:auto; margin-right:auto;"> <div id="timerprogressbar" class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="60"></div></div><span id="timer"></span> <br>');
+            '<div class="progress"><div class="progress-bar" role="progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="newcontractExp"></div></div></td> </tr> <tr> <td>المؤهلات المطلوبة</td> <td>'+
+            '<div class="progress"><div class="progress-bar" role="progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="newcontractQ"></div></div></td> </tr> <tr> <td>الراتب</td> <td><b id="newcontractSalary">1000</b></td> </tr> <tr> <td>عدد ساعات العمل</td> <td><b id="newcontractNOH">8</b></td> </tr> <tr> <td>مزايا إضافية</td> <td><b id="newcontractAF">3</b></td> </tr> </tbody> </table> <button id="signbtn" type="button" class="btn btn-lg btn-secondary" onclick="clearTimeout(window.globaltimer); signcontract();" >وقع العقد!</button><button class="btn btn-link btn-xs" id="stepForwardButton" onclick="clearTimeout(window.globaltimer); stepforward();">الانتقال إلى الفترة التالية</button> <br> <br> <br><div class="progress" style="height: 2px; width:80%; margin-left:auto; margin-right:auto;"> <div id="timerprogressbar" class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="60"></div></div><span id="timer"></span> <br>');
             $("#userStatus").html('<div class="row"> <div class="col-md-6"><b>خبرتك الحالية:</b> <div class="progress"> <div id="userEx" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">  </div></div></div> <div class="col-md-6"><b>مؤهلاتك الحالية:</b><div class="progress"><div class="progress-bar" id="userQ" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"> </div></div></div> <div class="row">  </div><div class="col-md-6"><b>الراتب الكلي :</b> <input type="text" id= "userTotalSalary" class="m-2 border-0 text-center text-info" /> </div> </div>');
             updateProgressBar("userEx",Exp_I);
             updateProgressBar("userQ",Q_I);
@@ -167,54 +188,54 @@
             }
         }
 
+        //
         //Updates a progress bar
-        function updateProgressBar(id,value){
-            document.getElementById(id).innerText = value;
+        // id: the id of the progress bar to search for
+        // value: the width value to fill the progress bar
+        // innerValue: the innert text value for to show in the progress bar
+        //
+        function updateProgressBar(id,value,innerValue = null){
+            document.getElementById(id).innerText = innerValue == null ? value : innerValue;
             $('#'+id).css('width',value + '%').attr('aria-valuenow',value);
         }
         //stepfunction
         function stepforward() {
 
-            if (currentStep > 10 && currentStep <= 15)
-                currentStepType = "OC";
-            else if (currentStep > 15 && currentStep <= 17)
-                currentStepType = "N";
-            else if (currentStep > 17 && currentStep <= 21)
-                currentStepType = "RF";
-            else if (currentStep > 21 && currentStep <= 25)
-                currentStepType = "OC";
-            else if (currentStep > 25 && currentStep <= 29)
-                currentStepType = "RF";
-            else if (currentStep > 30 && currentStep <= 35)
-                currentStepType = "RF";
-            else if (currentStep > 36 && currentStep <= 38)
-                currentStepType = "N";
-            else if (currentStep > 38 && currentStep <= 42)
-                currentStepType = "OC";
-            else if (currentStep > 42 && currentStep <= 47)
-                currentStepType = "RF";
-            else if (currentStep > 47 && currentStep <= 51)
-                currentStepType = "OC";
-            else if (currentStep > 51 && currentStep <= 55)
-                currentStepType = "OC";
-            else if (currentStep > 55 && currentStep <= 59)
-                currentStepType = "RF";
-            else if (currentStep > 59 && currentStep <= 65)
-                currentStepType = "N";
-            else if (currentStep > 65 && currentStep <= 69)
-                currentStepType = "RF";
-            else if (currentStep > 69 && currentStep <= 73)
-                currentStepType = "OC";
-            else if (currentStep > 73 && currentStep <= 78)
-                currentStepType = "OC";
-            else if (currentStep > 78 && currentStep <= 83)
-                currentStepType = "RF";
-            else if (currentStep > 83 && currentStep <= 89)
-                currentStepType = "RF";
-            else if (currentStep > 89 && currentStep <= 94)
-                currentStepType = "OC";
-            else if (currentStep > 94 && currentStep <= 100)
-                currentStepType = "N";
+            if(currentStep < 10 ){
+                currentStepType = stepType.N;
+            }
+            else if (currentStep >= 10 && currentStep < 15)
+                currentStepType = stepType.OC;
+            else if (currentStep >= 15 && currentStep < 17)
+                currentStepType = stepType.N;
+            else if (currentStep >= 17 && currentStep < 21)
+                currentStepType = stepType.RP;
+            else if (currentStep >= 21 && currentStep < 25)
+                currentStepType = stepType.OC;
+            else if (currentStep >= 25 && currentStep <= 35)
+                currentStepType = stepType.RP;
+            else if (currentStep >= 36 && currentStep < 38)
+                currentStepType = stepType.N;
+            else if (currentStep >= 38 && currentStep < 42)
+                currentStepType = stepType.OC;
+            else if (currentStep >= 42 && currentStep <= 47)
+                currentStepType = stepType.RP;
+            else if (currentStep >= 48 && currentStep <= 55)
+                currentStepType = stepType.OC;
+            else if (currentStep >= 56 && currentStep <= 59)
+                currentStepType = stepType.RP;
+            else if (currentStep >= 60 && currentStep <= 65)
+                currentStepType = stepType.N;
+            else if (currentStep >= 66 && currentStep <= 69)
+                currentStepType = stepType.RP;
+            else if (currentStep >= 70 && currentStep <= 78)
+                currentStepType = stepType.OC;
+            else if (currentStep >= 79 && currentStep <= 89)
+                currentStepType = stepType.RP;
+            else if (currentStep >= 90 && currentStep <= 94)
+                currentStepType = stepType.OC;
+            else if (currentStep >= 95 && currentStep <= 100)
+                currentStepType = stepType.N;
 
          
             if (currentStep <= 100) {
@@ -224,15 +245,9 @@
                 $("#currentContract").text(currentStep);
                 generatecontract();
                 runtimer();
-          
-                if(currentStepType === "OC"){
-                    countSkipInOC++;
-                }else if(currentStepType === "RF"){
-                    countSkipInRP++;
-                }
 
                 //if the user has already signed a contract
-                if(useravailable && currentcontractvalidation < 5){
+                if(!useravailable && currentcontractvalidation < 5){
                     //add the salery to the total income
                     totalIncome = totalIncome + currentcontractSalary
                     $('#userTotalSalary').val(totalIncome);
@@ -241,7 +256,8 @@
                 if(currentcontractvalidation > 1)
                 {
                     currentcontractvalidation--;
-                    $('#timerprogressbarforcontract').css('width',125 - (currentcontractvalidation * 25)  + '%').attr('aria-valuenow', currentcontractvalidation*25);
+
+                    updateProgressBar('timerprogressbarforcontract',125 - (currentcontractvalidation * 25),5 - currentcontractvalidation )
                 }else  if(currentcontractvalidation == 1)
                 { 
                     //Add to it so we do not count this contract as cancel by user
@@ -259,10 +275,9 @@
         //signcontract
         function generatecontract() {
             //EXP_C
-            newcontractExp_C =getRandomBetween(-10,10,true) + Exp_I; 
+            newcontractExp_C = getRandomBetween(-10,6,true) + Exp_I; 
             //Q_C
             newcontractQ_C = getRandomBetween(-10,10,true) + Q_I;   
-            
 
             switch (currentStepType) {
                 case 'N':
@@ -271,49 +286,54 @@
                 case 'OC ':
                     newcontractSalary = Math.ceil(currentcontractSalary * (((0.4 * newcontractExp_C) * (0.6 *newcontractQ_C)) /((0.4 * currentcontractExp_C) * (0.6 *currentcontractQ_C))) * getRandomBetween(1,1.5,false)); 
                     break;
-                case 'RF':
-                    newcontractSalary = Math.ceil(currentcontractSalary * (((0.4 * newcontractExp_C) * (0.6 *newcontractQ_C)) /((0.4 * currentcontractExp_C) * (0.6 *currentcontractQ_C))) * getRandomBetween(1,1.5,false)); 
+                case 'RP':
+                    newcontractSalary = Math.ceil(currentcontractSalary * (((0.4 * newcontractExp_C) * (0.6 *newcontractQ_C)) /((0.4 * currentcontractExp_C) * (0.6 *currentcontractQ_C))) * getRandomBetween(0.9,1,false)); 
                     break;
             } 
             if(newcontractSalary < 0 ){
                 newcontractSalary = newcontractSalary * -1;
             }
 
+            newcontractSalary = ceilToNearst(newcontractSalary,1000);
             newcontractNOH = getRandomBetween(10,40,true); 
-            newcontractAdditional = Math.ceil(getRandomBetween(1,5,true) * (40/newcontractNOH) * 10);
+            newcontractAF = Math.ceil(getRandomBetween(1,5,true) * (40/newcontractNOH) * 10);
 
             updateProgressBar("newcontractExp",newcontractExp_C)
             updateProgressBar("newcontractQ",newcontractQ_C)
 
             $("#newcontractSalary").text(newcontractSalary);
             $("#newcontractNOH").text(newcontractNOH + " ساعة");
-            $("#newcontractAdditional").text(newcontractAdditional);
+            $("#newcontractAF").text(newcontractAF);
+
+            //Condition to check if the user can sign the contract or not
+            if(useravailable && (Exp_I - newcontractExp_C) + 0.5 * (Q_I - newcontractQ_C) < -4){
+                $("#signbtn").prop('disabled', false);
+            }else{
+                $("#signbtn").prop('disabled', true);
+            }
+            
         }
 
         //signcontract
         function signcontract() {
             //update counters
-            contractsSigned++;
+            contractsSigned[currentStepType].push(currentStep);
             if((currentStep - 1) === cancelContractStep){
-                contractsSignedAfterCancel++;
+                contractsSignedAfterCancel[currentStepType].push(currentStep);
             }
+            contcontractSkip[currentStepType]--;
 
-            if(currentStepType === "OC"){
-                    countSkipInOC--;
-                }else if(currentStepType === "RF"){
-                    countSkipInRP--;
-            }
-
-            useravailable = true;
+            useravailable = false;
             $("#signbtn").prop('disabled', true);
             $("#signbtn").prop('title', "عليك فسخ عقدك الحالي قبل توقيع أي عقود جديدة.");
             currentcontractExp_C = newcontractExp_C;
             currentcontractQ_C = newcontractQ_C;
             currentcontractSalary = newcontractSalary;
             currentcontractNOH = newcontractNOH; // Number of Hours
-            currentcontractAdditional = newcontractAdditional;
+            currentcontractAF = newcontractAF;
             currentcontractvalidation = 5;
-             
+            currentcontractStepType = currentStepType;
+            currentcontractStep = currentStep;
             //calculate User new attribures
             calculateQ_I();
 
@@ -321,8 +341,8 @@
             + '</div></div></td> </tr> <tr> <td>المؤهلات المطلوبة</td> <td><div class="progress"><div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="currentcontractQ">' 
             + '</div></div></td> </tr> <tr> <td>الراتب</td> <td><b id="currentcontractSalary">' 
             + currentcontractSalary + '</b></td> </tr> <tr> <td>عدد ساعات العمل</td> <td><b id="currentcontractNOH">'
-            + currentcontractNOH + '</b></td> </tr> <tr> <td>مزايا إضافية</td> <td><b id="currentcontractAdditional">' 
-            + currentcontractAdditional + '</b></td> </tr> </tbody> </table> <button id="canclebtn" type="button" class="btn btn-lg btn-danger" onclick="clearTimeout(window.globaltimer); canclecontract();" >فسخ العقد!</button><br> <br> <br><div class="progress" style="height: 2px; width:80%; margin-left:auto; margin-right:auto;"> <div id="timerprogressbarforcontract" class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="4" aria-valuemin="1" aria-valuemax="4"></div></div><span>الزمن المتبقي لإنتهاء فترة العقد</span><br />');
+            + currentcontractNOH + '</b></td> </tr> <tr> <td>مزايا إضافية</td> <td><b id="currentcontractAF">' 
+            + currentcontractAF + '</b></td> </tr> </tbody> </table> <button id="canclebtn" type="button" class="btn btn-lg btn-danger" onclick="clearTimeout(window.globaltimer); canclecontract();" >فسخ العقد!</button><br> <br> <br><div class="progress" > <div id="timerprogressbarforcontract" class="progress-bar" role="progressbar"  aria-valuemin="0" aria-valuemax="4"></div></div><span>الزمن المتبقي لإنتهاء فترة العقد</span><br />');
 
             updateProgressBar("currentcontractExp",currentcontractExp_C);
             updateProgressBar("currentcontractQ", currentcontractQ_C);
@@ -334,7 +354,7 @@
             //If the contract is cancel by the user not buy the end of time
             if(currentcontractvalidation >0){
                 //update counters
-                contractsCanceled++;
+                contractsCanceled[currentStepType].push(currentcontractStep);
             }
             //Save the step the contract was cancel in
             cancelContractStep = currentStep
@@ -342,11 +362,11 @@
             currentcontractvalidation = 0;
             $("#signbtn").prop('disabled', false);
             $("#signbtn").prop('title', "توقيع هذا العقد!");
-             useravailable = false;
+             useravailable = true;
              currentcontractExp_C = 20;
              currentcontractQ_C = 20; 
              currentcontractNOH = 0; // Number of Hours
-             currentcontractAdditional = 0;
+             currentcontractAF = 0;
             $("#col1").html("<p style='margin-bottom:50px; margin-top:70px;'>لا يوجد لديك عمل حالياً...</p>");
             stepforward();
         }
@@ -354,7 +374,7 @@
         //increase user Q
         function calculateQ_I() { 
             
-            Q_I= Math.ceil( Q_I + (currentcontractAdditional/50) + 2*(currentcontractExp_C/Exp_I));
+            Q_I= Math.ceil( Q_I + (currentcontractAF/50) + 2*(currentcontractExp_C/Exp_I));
 
             var lambda = 0;
             if(Q_I >temp){
@@ -362,23 +382,10 @@
                 lambda = 1;
             }
 
-            Exp_I = Math.ceil(((newcontractNOH/40)*1.5) +10*lambda);
+            Exp_I = Math.ceil(((newcontractNOH / 40 ) * 1.5) + 10 * lambda) + Exp_I;
 
-            
-            // var counter = 0;
-            // if(currentcontractExp_C == Exp_I){
-            // counter = currentcontractQ_C - Q_I;
-            // }
-            // else
-            // {
-            //     counter = ((currentcontractExp_C - Exp_I) *5) + (currentcontractQ_C - Q_I);
-            // }
- 
-            // Q_Increaser(counter);
             updateProgressBar("userEx",Exp_I);
             updateProgressBar("userQ",Q_I);
-            
-        
         }
 
         function Q_Increaser(counter)
@@ -409,6 +416,29 @@
         else
             return number;
         }
+
+        
+        //
+        //Ceils the number to its nearst giving paramter
+        //  number: the number to ceil
+        //  nearset: the nearst 10,100,1000.... value to ceil to
+        //
+        function ceilToNearst(number,nearst){
+            return Math.round(number / nearst) * nearst;
+        }
+        //
+        //Gets the sum of the length of each step type array
+        //
+        function GetStepTypesArrayLength(obj){
+            return obj[stepType.OC].length + obj[stepType.RP].length +obj[stepType.N].length ; 
+        }
+        //
+        //Get the count of each step type in the object
+        //
+        function GetStepTypesCount(obj){
+            return obj[stepType.OC] + obj[stepType.RP] +obj[stepType.N] ; 
+        }
+        
     </script>
 
 </body>
