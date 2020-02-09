@@ -156,7 +156,7 @@ function saveResultData(){
                             }
                     }),
             success : function(result){
-                alert("لقد انتهت هذه التجربة بنجاح! شكراً لوقتك");
+                alert(` لقد انتهت هذه التجربة بنجاح! شكراً لوقتك.\n لقد تم تحصيل راتب تجميعي وقدره ${totalIncome}`);
                 //mark the data as saved to make sure it will not be sent again in the same session
                 dataSaved = true;
                 if(useravailable){

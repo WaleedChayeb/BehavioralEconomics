@@ -306,7 +306,7 @@
             $("#newcontractAF").text(newcontractAF);
 
             //Condition to check if the user can sign the contract or not
-            if(useravailable && (Exp_I - newcontractExp_C) + 0.5 * (Q_I - newcontractQ_C) < -4){
+            if(useravailable && (newcontractExp_C <= (Exp_I + 3 ) )){
                 $("#signbtn").prop('disabled', false);
             }else{
                 $("#signbtn").prop('disabled', true);
