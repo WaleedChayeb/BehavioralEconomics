@@ -160,7 +160,7 @@
 
         //start function
         function start($param) {
-            $("#pagecontent").html('<h5 class="cover-heading" style="text-align:right !important;">أهلاً بك، ' + $param + '!</h5><br><br>  <h5  > الفترة <span id="currentStep">1</span> / ' + totalSteps + '</h5><br><div class="row"><div class="col-md-6"><div id="col1"></div><div id="userStatus" class="col-md-4" style=" max-width: unset;"></div></div><div id="col2" class="col-md-6">Col2</div></div><br><br>');
+            $("#pagecontent").html('<h5 class="cover-heading" style="text-align:right !important;">أهلاً بك، ' + $param + '! <br/><div><button class="btn btn-outline-info" onClick="checkAllDataSaved()">Save</button><span class="mx-1">Data not saved : <span id = "not-saved-data">' + notSavedData.length + '</span></div><h5> الفترة <span id="currentStep">1</span> / ' + totalSteps + '</h5><br><div class="row"><div class="col-md-6"><div id="col1"></div><div id="userStatus" class="col-md-4" style=" max-width: unset;"></div></div><div id="col2" class="col-md-6">Col2</div></div><br><br>');
             $("#col1").html("<p style='margin-bottom:50px; margin-top:70px;'>لا يوجد لديك عمل حالياً...</p>");
             $("#col2").html('<table class="table table-hover p-3" style="width:80%; margin-left:auto; margin-right:auto;" > <head> <h2>العقد رقم #<span id="currentContract">1</span> </h2> <br> </head> <tbody> <tr> <td>الخبرة المطلوبة</td> <td>'+
             '<div class="progress"><div class="progress-bar" role="progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="newcontractExp"></div></div></td> </tr> <tr> <td>المؤهلات المطلوبة</td> <td>'+
@@ -238,7 +238,7 @@
                 currentStepType = stepType.N;
 
          
-            if (currentStep <= 100) {
+            if (currentStep <= 10) {
                 currenttime = 0;
                 currenttimebar = 1.6;
                 $("#currentStep").text(currentStep);
@@ -313,6 +313,7 @@
             }
             
         }
+        
 
         //signcontract
         function signcontract() {
