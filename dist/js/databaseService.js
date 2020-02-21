@@ -21,6 +21,9 @@ var notSavedData = [];
 //The function that save the user basic credentials data
 //
 function saveUserCredentials(){
+    document.getElementById('startbtn').style.setProperty('visibility','collapse');
+    document.getElementById('save-data-spinner').style.setProperty('visibility','visible')
+            
     $.ajax({
         url  : `${servername}/api/recordapi/create`,
         method: 'POST',
@@ -33,10 +36,14 @@ function saveUserCredentials(){
         success : function(data){
             //Set the user id
             savedUserId = data[0].value;
+            start(username);
         },
         error: function(error){
             alert(`Something wrong happend do not continue refresh page and register again`)
             console.log(error);
+            document.getElementById('startbtn').style.setProperty('visibility','visible');
+            document.getElementById('save-data-spinner').style.setProperty('visibility','collapse')
+            
         }
     });
 }

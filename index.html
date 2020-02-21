@@ -20,7 +20,8 @@
                 <h3 class="masthead-brand">تجربة في الاقتصاد السلوكي</h3>
                 <nav class="nav nav-masthead justify-content-center">
                     <a class="nav-link active" href="index.html">الرئيسية</a>
-                    <a class="nav-link " href="introduction.html">تعليمات التجربة</a>
+                    <a class="nav-link" href="winners.html">الفائزون</a>
+                    <a class="nav-link" href="introduction.html">تعليمات التجربة</a>
                     <a class="nav-link" href="about.html">الورقة البحثية</a>
                     <a class="nav-link" href="privacy.html"> الترخيص</a>
                 </nav>
@@ -48,8 +49,11 @@
                 <small id="DOBerror" style="color:red;"></small>
                 <br>
 
-                <p class="lead">
+                <p class="lead ">
                     <button id="startbtn" type="button" class="btn btn-lg btn-secondary">انطلق</button>
+                    <div class="spinner-border" id="save-data-spinner" style="visibility: collapse;">
+                        <span class="sr-only">Loading until data saved</span>
+                    </div>
                 </p>
             </div>
         </main>
@@ -135,6 +139,7 @@
 
         //start button
         $("#startbtn").click(function () {
+            
             username = $("#usernametxt").val();
             DOB = $("#DOB").val()
             gender = $('input[name="gender"]:checked').val();
@@ -143,8 +148,9 @@
             }else if( DOB === "") 
             {
                 $("#DOBerror").html("تاريخ الميلاد غير صالح <br>");
-            } else {
-                start(username);
+            } else {    
+
+                saveUserCredentials()
             }
         });
         $("#usernametxt").keypress(function (e) {
@@ -171,7 +177,6 @@
             generatecontract();
             runtimer();
 
-            saveUserCredentials();
         }
 
      
@@ -201,44 +206,38 @@
         //stepfunction
         function stepforward() {
 
-            if(currentStep < 10 ){
+            if(currentStep <= 10 ){
                 currentStepType = stepType.N;
             }
-            else if (currentStep >= 10 && currentStep < 15)
+            else if (currentStep >= 11 && currentStep <= 18)
                 currentStepType = stepType.OC;
-            else if (currentStep >= 15 && currentStep < 17)
+            else if (currentStep >= 19 && currentStep <= 22)
                 currentStepType = stepType.N;
-            else if (currentStep >= 17 && currentStep < 21)
+            else if (currentStep >= 23 && currentStep < 30)
                 currentStepType = stepType.RP;
-            else if (currentStep >= 21 && currentStep < 25)
+            else if (currentStep >= 30 && currentStep <= 36)
                 currentStepType = stepType.OC;
-            else if (currentStep >= 25 && currentStep <= 35)
+            else if (currentStep >= 37 && currentStep < 46)
                 currentStepType = stepType.RP;
-            else if (currentStep >= 36 && currentStep < 38)
+            else if (currentStep >= 46 && currentStep <= 49)
                 currentStepType = stepType.N;
-            else if (currentStep >= 38 && currentStep < 42)
+            else if (currentStep >= 50 && currentStep <= 57)
                 currentStepType = stepType.OC;
-            else if (currentStep >= 42 && currentStep <= 47)
+            else if (currentStep >= 58 && currentStep <= 65)
                 currentStepType = stepType.RP;
-            else if (currentStep >= 48 && currentStep <= 55)
+            else if (currentStep >= 66 && currentStep <= 74)
                 currentStepType = stepType.OC;
-            else if (currentStep >= 56 && currentStep <= 59)
+            else if (currentStep >= 75 && currentStep <= 86)
                 currentStepType = stepType.RP;
-            else if (currentStep >= 60 && currentStep <= 65)
+            else if (currentStep >= 87 && currentStep <= 90)
                 currentStepType = stepType.N;
-            else if (currentStep >= 66 && currentStep <= 69)
-                currentStepType = stepType.RP;
-            else if (currentStep >= 70 && currentStep <= 78)
+            else if (currentStep >= 91 && currentStep <= 97)
                 currentStepType = stepType.OC;
-            else if (currentStep >= 79 && currentStep <= 89)
-                currentStepType = stepType.RP;
-            else if (currentStep >= 90 && currentStep <= 94)
-                currentStepType = stepType.OC;
-            else if (currentStep >= 95 && currentStep <= 100)
+            else if (currentStep >= 98 && currentStep <= 100)
                 currentStepType = stepType.N;
 
          
-            if (currentStep <= 10) {
+            if (currentStep <= 100) {
                 currenttime = 0;
                 currenttimebar = 1.6;
                 $("#currentStep").text(currentStep);
